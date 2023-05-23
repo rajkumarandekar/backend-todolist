@@ -35,13 +35,8 @@ const todoSchema = new mongoose.Schema({
 });
 
 const Todo = mongoose.model("Todo", todoSchema);
+app.use(cors({ origin: "https://todo-d9mw.onrender.com" }));
 
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "http://todo-d9mw.onrender.com"); // Replace with your frontend domain
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
 // API endpoints
 app.get("/api/todos", async (req, res) => {
   try {
