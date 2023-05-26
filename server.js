@@ -177,7 +177,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).send("Error logging in");
   }
 });
-
 // API endpoints
 app.get("/api/todos", async (req, res) => {
   try {
