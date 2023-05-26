@@ -32,7 +32,6 @@ mongoose
     console.error("Error connecting to the database:", err);
   });
 
-// user.js
 // User.js
 
 const userSchema = new mongoose.Schema({
@@ -70,7 +69,7 @@ app.post("/api/register", async (req, res) => {
     // Check if the username already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(409).send("Username already exists");
+      return res.status(400).send("Username already exists");
     }
 
     // Hash the password
@@ -94,13 +93,13 @@ app.post("/api/login", async (req, res) => {
     // Check if the username exists
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(401).send("Invalid username or password");
+      return res.status(400).send("Invalid username or password");
     }
 
     // Check if the password is correct
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).send("Invalid username or password");
+      return res.status(400).send("Invalid username or password");
     }
 
     // Generate and sign a JWT token
@@ -139,44 +138,6 @@ function verifyToken(req, res, next) {
   }
 }
 
-app.post("/api/register", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) return res.status(400).send("Username already exists");
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({ username, password: hashedPassword });
-    await newUser.save();
-
-    res.status(201).send("User registered successfully");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error registering user");
-  }
-});
-
-app.post("/api/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const user = await User.findOne({ username });
-    if (!user) return res.status(400).send("Invalid username or password");
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
-      return res.status(400).send("Invalid username or password");
-
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-    res.header("Authorization", token).send(token);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error logging in");
-  }
-});
 // API endpoints
 app.get("/api/todos", async (req, res) => {
   try {
