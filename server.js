@@ -113,10 +113,32 @@ const todoSchema = new mongoose.Schema({
 
 const Todo = mongoose.model("Todo", todoSchema);
 
-app.get("/api/todos", async (req, res) => {
+/* app.get("/api/todos", async (req, res) => {
   try {
     const todos = await Todo.find({});
     res.json(todos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error fetching todos");
+  }
+});*/
+
+app.get("/api/todos", async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalTodos = await Todo.countDocuments({});
+    const totalPages = Math.ceil(totalTodos / limitNumber);
+
+    const todos = await Todo.find({}).skip(skip).limit(limitNumber);
+    res.json({
+      todos,
+      currentPage: pageNumber,
+      totalPages,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error fetching todos");
@@ -126,6 +148,7 @@ app.get("/api/todos", async (req, res) => {
 app.post("/api/todos", async (req, res) => {
   try {
     const todo = new Todo({ text: req.body.text });
+
     await todo.save();
     res.sendStatus(201);
   } catch (err) {
